@@ -77,7 +77,7 @@ app.get("/all_tokens", function (req, res) {
     res.send(
       allTokens.map((token) => {
         // remove unnecessary fields
-        return { token: token.tokenValue };
+        return { value: token.tokenValue };
       })
     );
   });

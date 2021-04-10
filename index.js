@@ -42,15 +42,25 @@ app.post("/save_token", function (req, res) {
   const token = req.body.token;
 
   if (token) {
-    const newToken = new Token({ tokenValue: req.body.token });
-
-    newToken.save(function (err, savedToken) {
+    Token.find({ tokenValue: token }, (err, existingToken) => {
       if (err) {
         res.statusCode = 500;
         res.send(err);
       }
+      if (!err && existingToken.length === 0) {
+        const newToken = new Token({ tokenValue: req.body.token });
 
-      res.send({ status: "success" });
+        newToken.save(function (err, savedToken) {
+          if (err) {
+            res.statusCode = 500;
+            res.send(err);
+          }
+
+          res.send({ status: "success" });
+        });
+      } else {
+        res.send({ status: "success" });
+      }
     });
   } else {
     res.statusCode = 400;

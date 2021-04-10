@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const sendPushNotification = require("./utils/expo");
 
 if (process.env.NODE_ENV !== "production") {
   // Load environment variables from .env file in non prod environments
@@ -35,8 +36,27 @@ app.get("/", function (req, res) {
   res.send({ status: "success" });
 });
 
-app.post("/push_notification", function (req, res) {
-  res.send({ status: "success" });
+app.post("/send_notification", function (req, res) {
+  const { title, body, data, to } = req.body;
+  if (to === "all") {
+    Token.find({}, (err, allTokens) => {
+      if (err) {
+        res.statusCode = 500;
+        res.send(err);
+      }
+
+      const tokens = allTokens.map((token) => {
+        // remove unnecessary fields
+        return token.tokenValue;
+      });
+
+      sendPushNotification(tokens, title, body, data);
+      res.send({ status: "success" });
+    });
+  } else {
+    sendPushNotification([to], title, body, data);
+    res.send({ status: "success" });
+  }
 });
 app.post("/save_token", function (req, res) {
   const token = req.body.token;

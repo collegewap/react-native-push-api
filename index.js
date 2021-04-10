@@ -68,6 +68,21 @@ app.post("/save_token", function (req, res) {
   }
 });
 
+app.get("/all_tokens", function (req, res) {
+  Token.find({}, (err, allTokens) => {
+    if (err) {
+      res.statusCode = 500;
+      res.send(err);
+    }
+    res.send(
+      allTokens.map((token) => {
+        // remove unnecessary fields
+        return { token: token.tokenValue };
+      })
+    );
+  });
+});
+
 // Start the server in port 8081
 const server = app.listen(process.env.PORT || 8081, function () {
   const port = server.address().port;
